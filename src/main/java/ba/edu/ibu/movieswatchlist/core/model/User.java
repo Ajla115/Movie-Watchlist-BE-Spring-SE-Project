@@ -22,6 +22,13 @@ public class User {
         this.emailEnabled = emailEnabled;
     }
 
+    // Constructor with email only
+    public User(String email) {
+        this.email = email;
+        this.emailEnabled = true; // Default value for emailEnabled
+    }
+
+
     // Getters and Setters
 
     public Long getUserId() {

@@ -18,16 +18,32 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public Long addOrGetUserId(String email) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isPresent()) {
+            // If user exists, return the user ID
+            return existingUser.get().getUserId();
+        } else {
+            // If user does not exist, create a new user and return its ID
+            User newUser = new User(email);
+            newUser.setEmailEnabled(true); // Default value
+            User savedUser = userRepository.save(newUser);
+            return savedUser.getUserId();
+        }
+    }
+
+    // It is not used anymore
     public User addUser(String email) {
         User user = new User(email);
         user.setEmailEnabled(true); // Default value
         return userRepository.save(user);
     }
 
-    public void changeNotificationStatus(Long userId, boolean emailEnabled) {
+    public void toggleNotificationStatus(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         userOptional.ifPresent(user -> {
-            user.setEmailEnabled(emailEnabled);
+            // Toggle the current status
+            user.setEmailEnabled(!user.isEmailEnabled());
             userRepository.save(user);
         });
     }

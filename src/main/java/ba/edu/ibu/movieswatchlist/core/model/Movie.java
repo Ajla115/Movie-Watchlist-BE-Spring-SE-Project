@@ -33,8 +33,6 @@ public class Movie {
         this.description = description;
         this.watchlistOrder = watchlistOrder;
         this.status = status;
-        this.genre = genre;
-        this.user = user;
     }
 
     // Getters and Setters

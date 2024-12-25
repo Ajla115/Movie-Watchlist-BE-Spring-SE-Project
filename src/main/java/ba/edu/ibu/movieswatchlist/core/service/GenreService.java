@@ -21,7 +21,12 @@ public class GenreService {
     }
 
     public Genre addGenre(Genre genre) {
+        genre.setGenreId(null);
         return genreRepository.save(genre);
+    }
+
+    public Optional<Genre> getGenreByName(String name) {
+        return genreRepository.findByName(name);
     }
 
     public Optional<Genre> getGenreById(Long genreId) {
