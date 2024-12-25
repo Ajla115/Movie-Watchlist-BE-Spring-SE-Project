@@ -17,11 +17,11 @@ public class Movie {
     private String status; // "To Watch" or "Watched"
 
     @ManyToOne
-    @JoinColumn(name = "genre_id")
+    @JoinColumn(name = "genre_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movie_genre"))
     private Genre genre;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movie_user"))
     private User user;
 
     public Movie() {
