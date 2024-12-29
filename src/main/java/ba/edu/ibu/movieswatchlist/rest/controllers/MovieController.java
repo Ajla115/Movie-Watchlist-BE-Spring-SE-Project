@@ -42,8 +42,7 @@ public class MovieController {
     }
 
 
-
-    @GetMapping("/filter/status/user/{userId}/")
+    @GetMapping("/filter/status/user/{userId}")
     public ResponseEntity<List<Movie>> filterMoviesByStatus(
             @PathVariable Long userId,
             @RequestParam String status) {
@@ -73,10 +72,24 @@ public class MovieController {
         return ResponseEntity.ok(movieService.editMovie(movieId, movieDTO));
     }
 
+    @PutMapping("/mark-watched/{userId}/{movieId}")
+    public ResponseEntity<?> markMovieAsWatched(@PathVariable Long userId, @PathVariable Long movieId) {
+        try {
+            Movie updatedMovie = movieService.markAsWatched(userId, movieId);
+            return ResponseEntity.ok(updatedMovie);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
         movieService.deleteMovie(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
 }

@@ -1,5 +1,8 @@
 package ba.edu.ibu.movieswatchlist.core.service;
 
+import ba.edu.ibu.movieswatchlist.api.impl.infobip.InfobipEmailService;
+import ba.edu.ibu.movieswatchlist.core.api.emailsender.EmailService;
+import ba.edu.ibu.movieswatchlist.core.api.genresuggester.GenreSuggester;
 import ba.edu.ibu.movieswatchlist.core.model.Genre;
 import ba.edu.ibu.movieswatchlist.core.model.Movie;
 import ba.edu.ibu.movieswatchlist.core.model.User;
@@ -19,12 +22,16 @@ public class MovieService {
     private final UserRepository userRepository;
     private final GenreService genreService;
     private final GenreRepository genreRepository;
+    private final InfobipEmailService emailService;
+    private final GenreSuggester genreSuggester;
 
-    public MovieService(MovieRepository movieRepository, UserRepository userRepository, GenreService genreService, GenreRepository genreRepository) {
+    public MovieService(MovieRepository movieRepository, UserRepository userRepository, GenreService genreService, GenreRepository genreRepository, InfobipEmailService emailService, GenreSuggester genreSuggester) {
         this.movieRepository = movieRepository;
         this.userRepository = userRepository;
         this.genreService = genreService;
         this.genreRepository = genreRepository;
+        this.emailService = emailService;
+        this.genreSuggester = genreSuggester;
     }
 
     public List<Movie> getMoviesByUser(User user) {
@@ -125,6 +132,40 @@ public class MovieService {
         // Save and return the updated movie
         return movieRepository.save(existingMovie);
     }
+
+    public Movie markAsWatched(Long userId, Long movieId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new EntityNotFoundException("Movie not found"));
+
+        if ("Watched".equals(movie.getStatus())) {
+            throw new IllegalStateException("This movie has already been marked as watched");
+        }
+
+        movie.setStatus("Watched");
+        movieRepository.save(movie);
+
+        if (movie.getUser().isEmailEnabled()) {
+            String genre = movie.getGenre().getName();
+            String bodyContent;
+            try {
+                bodyContent = genreSuggester.suggestMovies(genre); // Call OpenAI for recommendations
+            } catch (Exception e) {
+                System.err.println("OpenAI API error: " + e.getMessage());
+                bodyContent = "We recommend exploring more movies on this link: https://mubi.com/en/films?sort=popularity_quality_score";
+            }
+
+            String to = movie.getUser().getEmail();
+            String subject = "Thank you for watching!";
+            String body = "Dear user, thank you for watching \"" + movie.getTitle() + "\".\n\n"
+                    + "Movie suggestions from the same genre:\n" + bodyContent;
+
+            emailService.sendEmail(to, subject, body);
+        }
+
+        return movie;
+    }
+
+
 
 
 }
