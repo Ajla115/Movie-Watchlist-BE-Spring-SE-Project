@@ -1,12 +1,9 @@
 package ba.edu.ibu.movieswatchlist.rest.controllers;
 
-import ba.edu.ibu.movieswatchlist.core.model.Genre;
 import ba.edu.ibu.movieswatchlist.core.model.Movie;
-import ba.edu.ibu.movieswatchlist.core.model.User;
 import ba.edu.ibu.movieswatchlist.core.service.GenreService;
 import ba.edu.ibu.movieswatchlist.core.service.MovieService;
 import ba.edu.ibu.movieswatchlist.rest.dto.MovieDTO;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

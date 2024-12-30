@@ -2,7 +2,6 @@ package ba.edu.ibu.movieswatchlist.rest.controllers;
 
 import ba.edu.ibu.movieswatchlist.core.model.Genre;
 import ba.edu.ibu.movieswatchlist.core.service.GenreService;
-import jdk.jfr.Category;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +25,6 @@ public class GenreController {
     public ResponseEntity<List<Genre>> getAllGenres() {
         return ResponseEntity.ok(genreService.getAllGenres());
     }
-
-//    @GetMapping("/suggest/{title}")
-//    public ResponseEntity<String> suggestGenre(@PathVariable String title) {
-//        String genre = genreService.suggestGenre(title);
-//        return ResponseEntity.ok(genre);
-//    }
 
  @GetMapping("/suggest/{title}")
     public ResponseEntity<String> suggestGenre(@PathVariable String title) {

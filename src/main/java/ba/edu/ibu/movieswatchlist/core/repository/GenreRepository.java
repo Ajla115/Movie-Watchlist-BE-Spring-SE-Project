@@ -9,13 +9,12 @@ import java.util.Optional;
 
 public interface GenreRepository extends JpaRepository<Genre, Long> {
 
-    // Find genre by name
+
     Optional<Genre> findByName(String name);
 
-    // Check if a genre exists by name
     boolean existsByName(String name);
 
-    // Fetch all genres sorted alphabetically
+
     @Query("SELECT g FROM genres g ORDER BY g.name ASC")
     List<Genre> findAllSortedByName();
 }

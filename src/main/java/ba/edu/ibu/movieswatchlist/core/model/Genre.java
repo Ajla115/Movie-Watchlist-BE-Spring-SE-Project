@@ -18,8 +18,6 @@ public class Genre {
         this.genreId = genreId;
         this.name = name;
     }
-
-    // Getters and Setters
     public Long getGenreId() {
         return genreId;
     }

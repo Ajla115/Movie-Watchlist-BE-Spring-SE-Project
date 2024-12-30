@@ -5,9 +5,9 @@ public class MovieDTO {
     private String description;
     private String status;
     private String watchlistOrder;
-    private String genreName; // Accept genre name from the user
+    private String genreName;
 
-    // Constructors
+
     public MovieDTO() {}
 
     public MovieDTO(String title, String description, String status, String watchlistOrder, String genreName) {
@@ -18,7 +18,6 @@ public class MovieDTO {
         this.genreName = genreName;
     }
 
-    // Getters and Setters
     public String getTitle() {
         return title;
     }

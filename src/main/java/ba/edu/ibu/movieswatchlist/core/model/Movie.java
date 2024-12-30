@@ -14,7 +14,7 @@ public class Movie {
 
     private String watchlistOrder;
 
-    private String status; // "To Watch" or "Watched"
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "genre_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movie_genre"))
@@ -34,8 +34,6 @@ public class Movie {
         this.watchlistOrder = watchlistOrder;
         this.status = status;
     }
-
-    // Getters and Setters
 
     public Long getMovieId() {
         return movieId;

@@ -1,7 +1,6 @@
 package ba.edu.ibu.movieswatchlist.core.service;
 
 import ba.edu.ibu.movieswatchlist.api.impl.infobip.InfobipEmailService;
-import ba.edu.ibu.movieswatchlist.core.api.emailsender.EmailService;
 import ba.edu.ibu.movieswatchlist.core.api.genresuggester.GenreSuggester;
 import ba.edu.ibu.movieswatchlist.core.model.Genre;
 import ba.edu.ibu.movieswatchlist.core.model.Movie;
@@ -72,24 +71,21 @@ public class MovieService {
     }
 
     public Movie addMovie(MovieDTO movieDTO, Long userId) {
-        // Create a new movie object
+
         Movie movie = new Movie();
         movie.setTitle(movieDTO.getTitle());
         movie.setDescription(movieDTO.getDescription());
         movie.setStatus(movieDTO.getStatus());
         movie.setWatchlistOrder(movieDTO.getWatchlistOrder());
 
-        // Fetch the genre by its name
         Genre genre = genreService.getGenreByName(movieDTO.getGenreName())
                 .orElseThrow(() -> new EntityNotFoundException("Genre not found: " + movieDTO.getGenreName()));
         movie.setGenre(genre);
 
-        // Fetch the user by its ID
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: ID " + userId));
         movie.setUser(user);
 
-        // Save and return the movie
         return movieRepository.save(movie);
     }
 
@@ -102,11 +98,9 @@ public class MovieService {
     }
 
     public Movie editMovie(Long movieId, MovieDTO updatedMovieDTO) {
-        // Fetch the existing movie
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new EntityNotFoundException("Movie not found"));
 
-        // Update the movie's fields
         if (updatedMovieDTO.getTitle() != null) {
             existingMovie.setTitle(updatedMovieDTO.getTitle());
         }
@@ -129,7 +123,6 @@ public class MovieService {
             existingMovie.setGenre(genre);
         }
 
-        // Save and return the updated movie
         return movieRepository.save(existingMovie);
     }
 
@@ -148,7 +141,7 @@ public class MovieService {
             String genre = movie.getGenre().getName();
             String bodyContent;
             try {
-                bodyContent = genreSuggester.suggestMovies(genre); // Call OpenAI for recommendations
+                bodyContent = genreSuggester.suggestMovies(genre);
             } catch (Exception e) {
                 System.err.println("OpenAI API error: " + e.getMessage());
                 bodyContent = "We recommend exploring more movies on this link: https://mubi.com/en/films?sort=popularity_quality_score";

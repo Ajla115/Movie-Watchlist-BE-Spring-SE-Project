@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-//dodati dva AI suggesters, mozda oba ovdje, ili jedan ovdje, a drugi tamo u movies
 @Service
 public class GenreService {
     private final GenreRepository genreRepository;
