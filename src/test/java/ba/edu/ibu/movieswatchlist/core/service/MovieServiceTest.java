@@ -48,6 +48,35 @@ class MovieServiceTest {
     }
 
     @Test
+    void testGetMovieById() {
+        Long movieId = 1L;
+        Movie movie = new Movie();
+        movie.setMovieId(movieId);
+        movie.setTitle("Inception");
+
+        when(movieRepository.findById(movieId)).thenReturn(Optional.of(movie));
+
+        Optional<Movie> foundMovie = movieService.getMovieById(movieId);
+
+        assertTrue(foundMovie.isPresent());
+        assertEquals("Inception", foundMovie.get().getTitle());
+        verify(movieRepository, times(1)).findById(movieId);
+    }
+
+    @Test
+    void testGetMovieById_NotFound() {
+        Long movieId = 1L;
+
+        when(movieRepository.findById(movieId)).thenReturn(Optional.empty());
+
+        Optional<Movie> foundMovie = movieService.getMovieById(movieId);
+
+        assertFalse(foundMovie.isPresent());
+        verify(movieRepository, times(1)).findById(movieId);
+    }
+
+
+    @Test
     void testGetMoviesByUser() {
         User user = new User();
         user.setUserId(1L);
