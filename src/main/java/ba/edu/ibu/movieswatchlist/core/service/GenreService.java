@@ -38,6 +38,4 @@ public class GenreService {
     public String suggestGenre(String movieTitle) {
         return genreSuggester.suggestGenre(movieTitle);
     }
-
-
 }
