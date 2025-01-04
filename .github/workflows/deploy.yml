@@ -1,0 +1,45 @@
+name: Deploy to Render
+
+on:
+  release:
+    types: [published] # Trigger the workflow when a release is published
+  push:
+    tags:
+      - 'v*' # Trigger the workflow for tags starting with 'v'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Install Render CLI
+      - name: Install Render CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/render-oss/cli/refs/heads/main/bin/install.sh | sh
+
+      # Step 3: Set Render Workspace
+      - name: Set Render Workspace
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          render workspace set movies-watchlist-workspace -o json
+
+      # Step 4: Get Commit SHA
+      - name: Get Commit SHA
+        id: git-info
+        run: echo "commit=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      # Step 5: Verify Render CLI Installation
+      - name: Verify Render CLI Installation
+        run: render --version
+
+      # Step 6: Deploy the application to Render
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          render deploys create ${{ secrets.RENDER_SERVICE_ID }} --commit ${{ env.commit }} -o json --confirm
