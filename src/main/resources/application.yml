@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+
+openai:
+  secret: ${OPENAI_API_KEY}
+
+
+email:
+  infobip:
+    smtp-host: ${SMTP_HOST}
+    smtp-username: ${SMTP_USERNAME}
+    smtp-password: ${SMTP_PASSWORD}
+    smtp-port: ${SMTP_PORT}
+    sender-email: ${SENDER_EMAIL}
+
+infobip:
+  api:
+    key: "${INFOBIP_API_KEY}"
+    url: "${INFOBIP_API_URL}"
+  sender:
+    email: "${INFOBIP_EMAIL}"
