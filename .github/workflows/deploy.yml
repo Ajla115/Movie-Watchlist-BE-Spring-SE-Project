@@ -5,7 +5,7 @@ on:
     types: [published] # Trigger the workflow when a release is published
   push:
     tags:
-      - 'v*' # Trigger the workflow for tags starting with 'v'
+      - 'v*' # Trigger the workflow for tags starting with 'v' tag
 
 jobs:
   deploy:
