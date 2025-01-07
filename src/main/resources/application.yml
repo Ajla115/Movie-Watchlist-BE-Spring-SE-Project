@@ -16,16 +16,8 @@ spring:
       hibernate.format_sql: true
 
 openai:
-  secret: ${OPENAI_API_KEY}
+  secret: "${OPENAI_API_KEY}"
 
-
-email:
-  infobip:
-    smtp-host: ${SMTP_HOST}
-    smtp-username: ${SMTP_USERNAME}
-    smtp-password: ${SMTP_PASSWORD}
-    smtp-port: ${SMTP_PORT}
-    sender-email: ${SENDER_EMAIL}
 
 infobip:
   api:
