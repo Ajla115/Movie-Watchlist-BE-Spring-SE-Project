@@ -37,11 +37,13 @@ public class OpenAISuggester implements GenreSuggester {
 
     @Override
     public String suggestMovies(String genre) {
-        String prompt = "Suggest at least one good movie from this genre: " + genre;
+        String prompt = "Suggest exactly five good movies from the genre '" + genre + "'. "
+                + "Respond with only the movie titles, separated by commas. Do not number the list or add extra text.";
+
         CompletionRequest completionRequest = CompletionRequest.builder()
                 .prompt(prompt)
                 .model("gpt-3.5-turbo-instruct")
-                .maxTokens(10)
+                .maxTokens(100)
                 .build();
 
         try {

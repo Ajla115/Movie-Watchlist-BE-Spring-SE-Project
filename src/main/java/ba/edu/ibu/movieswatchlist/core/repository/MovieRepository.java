@@ -28,11 +28,32 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM movies m WHERE m.user = :user ORDER BY m.title ASC")
     List<Movie> findAllMoviesByUserSortedByTitle(@Param("user") User user);
 
-    @Query("SELECT m FROM movies m WHERE m.user.userId = :userId ORDER BY m.watchlistOrder ASC")
+    @Query("""
+    SELECT m 
+    FROM movies m 
+    WHERE m.user.userId = :userId 
+    ORDER BY 
+      CASE 
+        WHEN m.watchlistOrder = 'Next Up' THEN 1
+        WHEN m.watchlistOrder = 'When I have time' THEN 2
+        WHEN m.watchlistOrder = 'Someday' THEN 3
+      END ASC
+""")
     List<Movie> findAllByUserIdOrderByWatchlistOrderAsc(@Param("userId") Long userId);
 
-    @Query("SELECT m FROM movies m WHERE m.user.userId = :userId ORDER BY m.watchlistOrder DESC")
+    @Query("""
+    SELECT m 
+    FROM movies m 
+    WHERE m.user.userId = :userId 
+    ORDER BY 
+      CASE 
+        WHEN m.watchlistOrder = 'Someday' THEN 1
+        WHEN m.watchlistOrder = 'When I have time' THEN 2
+        WHEN m.watchlistOrder = 'Next Up' THEN 3
+      END ASC
+""")
     List<Movie> findAllByUserIdOrderByWatchlistOrderDesc(@Param("userId") Long userId);
+
 
 
 }
