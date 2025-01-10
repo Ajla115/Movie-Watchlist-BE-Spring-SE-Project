@@ -168,6 +168,6 @@ class MovieControllerTest {
         mockMvc.perform(delete("/api/movies/delete/29"))
                 .andExpect(status().isNoContent());
 
-        verify(movieService, times(1)).deleteMovie(26L);
+        verify(movieService, times(1)).deleteMovie(29L);
     }
 }
