@@ -1,6 +1,7 @@
 package ba.edu.ibu.movieswatchlist.rest.controllers;
 
 import ba.edu.ibu.movieswatchlist.core.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,5 +24,15 @@ public class UserController {
     public ResponseEntity<Void> changeNotificationStatus(@PathVariable Long id) {
         userService.toggleNotificationStatus(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/notification-status/{id}")
+    public ResponseEntity<Boolean> getUserNotificationStatus(@PathVariable Long id) {
+        Boolean notificationStatus = userService.getUserNotificationStatus(id);
+        if (notificationStatus != null) {
+            return ResponseEntity.ok(notificationStatus);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 }

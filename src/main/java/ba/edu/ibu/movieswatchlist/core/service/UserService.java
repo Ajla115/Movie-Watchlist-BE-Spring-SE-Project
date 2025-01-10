@@ -43,4 +43,8 @@ public class UserService {
             userRepository.save(user);
         });
     }
+
+    public Boolean getUserNotificationStatus(Long userId) {
+        return userRepository.retrieveEmailStatusByUserId(userId);
+    }
 }
