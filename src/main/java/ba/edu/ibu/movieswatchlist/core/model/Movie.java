@@ -1,6 +1,7 @@
 package ba.edu.ibu.movieswatchlist.core.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity(name = "movies")
 public class Movie {
@@ -23,6 +24,10 @@ public class Movie {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movie_user"))
     private User user;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WatchlistEntry> watchlistEntries;
+
 
     public Movie() {
     }

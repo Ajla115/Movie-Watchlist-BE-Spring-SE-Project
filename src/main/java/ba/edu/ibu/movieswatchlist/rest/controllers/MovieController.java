@@ -3,6 +3,7 @@ package ba.edu.ibu.movieswatchlist.rest.controllers;
 import ba.edu.ibu.movieswatchlist.core.model.Movie;
 import ba.edu.ibu.movieswatchlist.core.service.GenreService;
 import ba.edu.ibu.movieswatchlist.core.service.MovieService;
+import ba.edu.ibu.movieswatchlist.core.service.WatchlistGroupService;
 import ba.edu.ibu.movieswatchlist.rest.dto.MovieDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +15,22 @@ import java.util.List;
 public class MovieController {
     private final MovieService movieService;
     private final GenreService genreService;
+    private final WatchlistGroupService watchlistGroupService;
 
-    public MovieController(MovieService movieService, GenreService genreService) {
+
+    public MovieController(MovieService movieService, GenreService genreService, WatchlistGroupService  watchlistGroupService) {
         this.movieService = movieService;
         this.genreService = genreService;
+        this.watchlistGroupService = watchlistGroupService;
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = "/user/{userId}")
+    @PostMapping("/add/user/{userId}")
     public ResponseEntity<Movie> createMovie(@RequestBody MovieDTO movieDTO, @PathVariable Long userId) {
         return ResponseEntity.ok(movieService.addMovie(movieDTO, userId));
     }
 
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/get-all/user/{userId}")
     public ResponseEntity<List<Movie>> getMoviesByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(movieService.getMoviesByUserSortedByTitle(userId));
     }
@@ -62,7 +66,7 @@ public class MovieController {
         return ResponseEntity.ok(movieService.filterMoviesByGenre(userId, genreName));
     }
 
-    @PutMapping("/{movieId}")
+    @PutMapping("/edit/{movieId}")
     public ResponseEntity<Movie> editMovie(
             @PathVariable Long movieId,
             @RequestBody MovieDTO movieDTO) {
@@ -79,11 +83,9 @@ public class MovieController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-        movieService.deleteMovie(id);
-        return ResponseEntity.noContent().build();
-    }
+
+
+
 
 
 

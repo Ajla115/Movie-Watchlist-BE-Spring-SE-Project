@@ -1,21 +1,34 @@
 package ba.edu.ibu.movieswatchlist.rest.dto;
 
+import java.util.List;
+
 public class MovieDTO {
     private String title;
     private String description;
     private String status;
     private String watchlistOrder;
     private String genreName;
+    private List<String> watchlistGroupNames;  // New field for group names
+
 
 
     public MovieDTO() {}
 
-    public MovieDTO(String title, String description, String status, String watchlistOrder, String genreName) {
+    public MovieDTO(String title, String description, String status, String watchlistOrder, String genreName, List<String> watchlistGroupNames) {
         this.title = title;
         this.description = description;
         this.status = status;
         this.watchlistOrder = watchlistOrder;
         this.genreName = genreName;
+        this.watchlistGroupNames = watchlistGroupNames;
+    }
+
+    public List<String> getWatchlistGroupNames() {
+        return watchlistGroupNames;
+    }
+
+    public void setWatchlistGroupNames(List<String> watchlistGroupNames) {
+        this.watchlistGroupNames = watchlistGroupNames;
     }
 
     public String getTitle() {

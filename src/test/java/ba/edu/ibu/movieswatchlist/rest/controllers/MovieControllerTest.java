@@ -47,7 +47,7 @@ class MovieControllerTest {
 
         when(movieService.addMovie(any(MovieDTO.class), eq(1L))).thenReturn(movie);
 
-        mockMvc.perform(post("/api/movies/user/1")
+        mockMvc.perform(post("/api/movies/add/user/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Inception\"}"))
                 .andExpect(status().isOk())
@@ -63,7 +63,7 @@ class MovieControllerTest {
 
         when(movieService.getMoviesByUserSortedByTitle(1L)).thenReturn(List.of(movie));
 
-        mockMvc.perform(get("/api/movies/user/1"))
+        mockMvc.perform(get("/api/movies/get-all/user/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Inception"));
 
@@ -139,7 +139,7 @@ class MovieControllerTest {
 
         when(movieService.editMovie(eq(1L), any(MovieDTO.class))).thenReturn(updatedMovie);
 
-        mockMvc.perform(put("/api/movies/1")
+        mockMvc.perform(put("/api/movies/edit/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Inception Updated\"}"))
                 .andExpect(status().isOk())
@@ -165,9 +165,9 @@ class MovieControllerTest {
 
     @Test
     void testDeleteMovie() throws Exception {
-        mockMvc.perform(delete("/api/movies/delete/1"))
+        mockMvc.perform(delete("/api/movies/delete/29"))
                 .andExpect(status().isNoContent());
 
-        verify(movieService, times(1)).deleteMovie(1L);
+        verify(movieService, times(1)).deleteMovie(26L);
     }
 }

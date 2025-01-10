@@ -54,6 +54,10 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 """)
     List<Movie> findAllByUserIdOrderByWatchlistOrderDesc(@Param("userId") Long userId);
 
+    List<Movie> findByUserUserId(Long userId);
+
+
+
 
 
 }
