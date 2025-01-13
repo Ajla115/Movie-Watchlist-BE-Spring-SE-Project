@@ -25,7 +25,12 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM movies m WHERE m.user.userId = :userId AND m.genre.genreId = :genreId")
     List<Movie> findByGenreAndUserId(@Param("userId") Long userId, @Param("genreId") Long genreId);
 
-    @Query("SELECT m FROM movies m WHERE m.user = :user ORDER BY m.title ASC")
+
+    @Query("SELECT DISTINCT m FROM movies m " +
+            "LEFT JOIN FETCH m.watchlistEntries we " +
+            "LEFT JOIN FETCH we.watchlistGroup wg " +
+            "WHERE m.user = :user " +
+            "ORDER BY m.title ASC")
     List<Movie> findAllMoviesByUserSortedByTitle(@Param("user") User user);
 
     @Query("""

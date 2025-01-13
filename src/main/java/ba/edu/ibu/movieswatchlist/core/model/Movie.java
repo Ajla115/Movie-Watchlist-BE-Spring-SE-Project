@@ -1,6 +1,9 @@
 package ba.edu.ibu.movieswatchlist.core.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "movies")
@@ -26,7 +29,14 @@ public class Movie {
     private User user;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<WatchlistEntry> watchlistEntries;
+
+    @Transient
+    private List<String> watchlistGroupNames;
+
+
+
 
 
     public Movie() {
@@ -95,4 +105,22 @@ public class Movie {
     public void setUser(User user) {
         this.user = user;
     }
+
+
+    public List<WatchlistEntry> getWatchlistEntries() {
+        return watchlistEntries;
+    }
+
+    public void setWatchlistEntries(List<WatchlistEntry> watchlistEntries) {
+        this.watchlistEntries = watchlistEntries;
+    }
+
+    public List<String> getWatchlistGroupNames() {
+        return watchlistGroupNames;
+    }
+
+    public void setWatchlistGroupNames(List<String> watchlistGroupNames) {
+        this.watchlistGroupNames = watchlistGroupNames;
+    }
+
 }

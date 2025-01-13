@@ -60,12 +60,32 @@ public class MovieService {
         return movieRepository.findByGenreAndUserId(userId, genre.getGenreId());
     }
 
-
     public List<Movie> getMoviesByUserSortedByTitle(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        return movieRepository.findAllMoviesByUserSortedByTitle(user);
+
+        // Fetch movies with watchlist entries and groups
+        List<Movie> movies = movieRepository.findAllMoviesByUserSortedByTitle(user);
+
+        // Log the count of movies fetched
+        System.out.println("Fetched movies count: " + movies.size());
+
+        // Map watchlist entries to watchlist group names for each movie
+        movies.forEach(movie -> {
+            List<String> groupNames = movie.getWatchlistEntries().stream()
+                    .map(entry -> entry.getWatchlistGroup().getName())
+                    .collect(Collectors.toList());
+            movie.setWatchlistGroupNames(groupNames);
+
+            // Log each movie's title and its associated watchlist group names
+            System.out.println("Movie: " + movie.getTitle() + " | Watchlist Groups: " + groupNames);
+        });
+
+        return movies;
     }
+
+
+
 
     public List<Movie> sortMoviesByWatchlistOrder(Long userId, String order) {
         if (!order.equalsIgnoreCase("asc") && !order.equalsIgnoreCase("desc")) {
@@ -79,43 +99,47 @@ public class MovieService {
         }
     }
 
-    /**
-     * Add a new movie and associate it with specified watchlist groups (optional).
-     */
     @Transactional
     public Movie addMovie(MovieDTO movieDTO, Long userId) {
+        // Check if watchlist group names are provided
+        if (movieDTO.getWatchlistGroupNames() == null || movieDTO.getWatchlistGroupNames().isEmpty()) {
+            throw new IllegalArgumentException("At least one watchlist group name must be provided.");
+        }
+
         Movie movie = new Movie();
         movie.setTitle(movieDTO.getTitle());
         movie.setDescription(movieDTO.getDescription());
         movie.setStatus(movieDTO.getStatus());
         movie.setWatchlistOrder(movieDTO.getWatchlistOrder());
 
+        // Fetch the genre by name
         Genre genre = genreService.getGenreByName(movieDTO.getGenreName())
                 .orElseThrow(() -> new EntityNotFoundException("Genre not found: " + movieDTO.getGenreName()));
         movie.setGenre(genre);
 
+        // Fetch the user by ID
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: ID " + userId));
         movie.setUser(user);
 
+        // Save the movie entity
         Movie savedMovie = movieRepository.save(movie);
 
-        if (movieDTO.getWatchlistGroupNames() != null) {
-            // Handle watchlist groups
-            List<WatchlistGroup> watchlistGroups = movieDTO.getWatchlistGroupNames().stream()
-                    .map(watchlistGroupService::createOrGetWatchlistGroup)
-                    .collect(Collectors.toList());
+        // Handle watchlist groups and entries
+        List<WatchlistGroup> watchlistGroups = movieDTO.getWatchlistGroupNames().stream()
+                .map(watchlistGroupService::createOrGetWatchlistGroup)
+                .collect(Collectors.toList());
 
-            for (WatchlistGroup group : watchlistGroups) {
-                WatchlistEntry entry = new WatchlistEntry();
-                entry.setMovie(savedMovie);
-                entry.setWatchlistGroup(group);
-                watchlistEntryRepository.save(entry);
-            }
+        for (WatchlistGroup group : watchlistGroups) {
+            WatchlistEntry entry = new WatchlistEntry();
+            entry.setMovie(savedMovie);
+            entry.setWatchlistGroup(group);
+            watchlistEntryRepository.save(entry);
         }
 
         return savedMovie;
     }
+
 
 
     public Optional<Movie> getMovieById(Long movieId) {
@@ -126,17 +150,11 @@ public class MovieService {
         movieRepository.deleteById(movieId);
     }
 
-    /**
-     * Delete a watchlist group and its entries, but keep the movies.
-     */
     @Transactional
     public void deleteGroupOnly(Long groupId) {
         watchlistGroupService.deleteWatchlistGroup(groupId);
     }
 
-    /**
-     * Delete a watchlist group and all movies exclusively associated with it.
-     */
     @Transactional
     public void deleteGroupAndMovies(Long groupId) {
         List<Long> movieIds = watchlistEntryRepository.findByWatchlistGroupId(groupId).stream()
@@ -156,9 +174,11 @@ public class MovieService {
 
     @Transactional
     public Movie editMovie(Long movieId, MovieDTO updatedMovieDTO) {
+        // Fetch the existing movie
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new EntityNotFoundException("Movie not found"));
 
+        // Update basic fields if provided
         if (updatedMovieDTO.getTitle() != null) {
             existingMovie.setTitle(updatedMovieDTO.getTitle());
         }
@@ -172,36 +192,55 @@ public class MovieService {
             existingMovie.setWatchlistOrder(updatedMovieDTO.getWatchlistOrder());
         }
 
+        // Update genre if provided
         if (updatedMovieDTO.getGenreName() != null) {
             Genre genre = genreService.getGenreByName(updatedMovieDTO.getGenreName())
                     .orElseThrow(() -> new EntityNotFoundException("Genre not found: " + updatedMovieDTO.getGenreName()));
             existingMovie.setGenre(genre);
         }
 
-        Long userId = existingMovie.getUser().getUserId();  // Fetch userId from the existing movie
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: ID " + userId));
-        existingMovie.setUser(user);
-
-        // Clear existing watchlist entries for this movie
-        watchlistEntryRepository.deleteByMovieMovieId(movieId);
-
-        if (updatedMovieDTO.getWatchlistGroupNames() != null) {
-            // Add new watchlist entries based on the updated groups
-            List<WatchlistGroup> newGroups = updatedMovieDTO.getWatchlistGroupNames().stream()
-                    .map(watchlistGroupService::createOrGetWatchlistGroup)
-                    .collect(Collectors.toList());
-
-            for (WatchlistGroup group : newGroups) {
-                WatchlistEntry entry = new WatchlistEntry();
-                entry.setMovie(existingMovie);
-                entry.setWatchlistGroup(group);
-                watchlistEntryRepository.save(entry);
-            }
+        // Ensure at least one category is provided
+        if (updatedMovieDTO.getWatchlistGroupNames() == null || updatedMovieDTO.getWatchlistGroupNames().isEmpty()) {
+            throw new IllegalArgumentException("At least one watchlist group must be provided.");
         }
 
-        return movieRepository.save(existingMovie);
+        // Fetch existing watchlist entries for the movie
+        List<WatchlistEntry> existingEntries = watchlistEntryRepository.findByMovieMovieId(movieId);
+
+        // Map existing watchlist group names for comparison
+        List<String> existingGroupNames = existingEntries.stream()
+                .map(entry -> entry.getWatchlistGroup().getName())
+                .collect(Collectors.toList());
+
+        // Determine which groups to add and which to remove
+        List<String> newGroupNames = updatedMovieDTO.getWatchlistGroupNames();
+
+        // Groups to remove: existing groups that are not in the updated list
+        List<WatchlistEntry> entriesToRemove = existingEntries.stream()
+                .filter(entry -> !newGroupNames.contains(entry.getWatchlistGroup().getName()))
+                .collect(Collectors.toList());
+
+        // Groups to add: new groups that are not in the existing list
+        List<String> groupsToAdd = newGroupNames.stream()
+                .filter(name -> !existingGroupNames.contains(name))
+                .collect(Collectors.toList());
+
+        // Remove obsolete watchlist entries
+        watchlistEntryRepository.deleteAll(entriesToRemove);
+
+        // Add new watchlist entries
+        for (String groupName : groupsToAdd) {
+            WatchlistGroup group = watchlistGroupService.createOrGetWatchlistGroup(groupName);
+            WatchlistEntry entry = new WatchlistEntry();
+            entry.setMovie(existingMovie);
+            entry.setWatchlistGroup(group);
+            watchlistEntryRepository.save(entry);
+        }
+
+        return movieRepository.save(existingMovie); // Save and return updated movie
     }
+
+
 
 
     public Movie markAsWatched(Long userId, Long movieId) {
@@ -236,11 +275,31 @@ public class MovieService {
         return movie;
     }
 
+//    public List<Movie> getMoviesByWatchlistGroupAndUser(Long groupId, Long userId) {
+//        return watchlistEntryRepository.findByWatchlistGroupId(groupId).stream()
+//                .map(entry -> entry.getMovie())
+//                .filter(movie -> movie.getUser().getUserId().equals(userId))
+//                .collect(Collectors.toList());
+//    }
+
     public List<Movie> getMoviesByWatchlistGroupAndUser(Long groupId, Long userId) {
-        return watchlistEntryRepository.findByWatchlistGroupId(groupId).stream()
-                .map(entry -> entry.getMovie())
+        List<Movie> movies = watchlistEntryRepository.findByWatchlistGroupId(groupId).stream()
+                .map(WatchlistEntry::getMovie)
                 .filter(movie -> movie.getUser().getUserId().equals(userId))
                 .collect(Collectors.toList());
+
+        for (Movie movie : movies) {
+            // Extract watchlist group names from the movie's watchlist entries
+            List<String> groupNames = movie.getWatchlistEntries().stream()
+                    .map(entry -> entry.getWatchlistGroup().getName())
+                    .collect(Collectors.toList());
+            movie.setWatchlistGroupNames(groupNames);
+        }
+
+        return movies;
     }
+
+
+
 
 }

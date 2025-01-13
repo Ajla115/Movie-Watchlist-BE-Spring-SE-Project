@@ -5,6 +5,7 @@ import ba.edu.ibu.movieswatchlist.core.model.Movie;
 import ba.edu.ibu.movieswatchlist.core.model.WatchlistGroup;
 import ba.edu.ibu.movieswatchlist.core.service.MovieService;
 import ba.edu.ibu.movieswatchlist.core.service.WatchlistGroupService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +22,15 @@ public class WatchlistGroupController {
         this.watchlistGroupService = watchlistGroupService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<WatchlistGroup> createWatchlistGroup(@RequestParam String name) {
+    @PostMapping("/add-indirectly")
+    public ResponseEntity<WatchlistGroup> createOrGetWatchlistGroup(@RequestParam String name) {
         return ResponseEntity.ok(watchlistGroupService.createOrGetWatchlistGroup(name));
+    }
+
+    @PostMapping("/add-directly")
+    public ResponseEntity<WatchlistGroup> createWatchlistGroup(@RequestParam String name) {
+        WatchlistGroup createdGroup = watchlistGroupService.createWatchlistGroup(name);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdGroup);
     }
 
     @PutMapping("/edit/{groupId}")
@@ -46,9 +53,19 @@ public class WatchlistGroupController {
         return ResponseEntity.ok(watchlistGroupService.getAllWatchlistGroupsIdsAndNames());
     }
 
-    @GetMapping("/movies-by-group")
-    public ResponseEntity<List<Movie>> getMoviesByWatchlistGroup(@RequestParam Long groupId, @RequestParam Long userId) {
+//    @GetMapping("/movies-by-group/{userId}/{groupId}")
+//    public ResponseEntity<List<Movie>> getMoviesByWatchlistGroup(
+//            @PathVariable Long userId,
+//            @PathVariable Long groupId) {
+//        return ResponseEntity.ok(movieService.getMoviesByWatchlistGroupAndUser(groupId, userId));
+//    }
+
+    @GetMapping("/movies-by-group/{userId}/{groupId}")
+    public ResponseEntity<List<Movie>> getMoviesByWatchlistGroup(
+            @PathVariable Long userId,
+            @PathVariable Long groupId) {
         return ResponseEntity.ok(movieService.getMoviesByWatchlistGroupAndUser(groupId, userId));
     }
+
 }
 

@@ -30,6 +30,7 @@ public class MovieController {
     }
 
 
+
     @GetMapping("/get-all/user/{userId}")
     public ResponseEntity<List<Movie>> getMoviesByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(movieService.getMoviesByUserSortedByTitle(userId));

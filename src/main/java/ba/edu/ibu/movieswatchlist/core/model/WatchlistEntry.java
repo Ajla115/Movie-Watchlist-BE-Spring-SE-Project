@@ -12,6 +12,8 @@ public class WatchlistEntry {
 
     @ManyToOne
     @JoinColumn(name = "movie_id", nullable = false)
+    @JsonBackReference
+
     private Movie movie;
 
     @ManyToOne
