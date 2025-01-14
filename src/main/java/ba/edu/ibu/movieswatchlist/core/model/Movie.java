@@ -44,6 +44,8 @@ public class Movie {
         this.status = status;
     }
 
+
+
     public Long getMovieId() {
         return movieId;
     }
