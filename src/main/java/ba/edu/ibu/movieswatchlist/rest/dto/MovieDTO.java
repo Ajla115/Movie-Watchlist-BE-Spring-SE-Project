@@ -8,7 +8,7 @@ public class MovieDTO {
     private String status;
     private String watchlistOrder;
     private String genreName;
-    private List<String> watchlistGroupNames;  // New field for group names
+    private List<String> watchlistGroupNames;
 
 
 

@@ -34,6 +34,11 @@ public class WatchlistEntry {
         this.watchlistGroup = watchlistGroup;
     }
 
+    public WatchlistEntry(Movie movie, WatchlistGroup watchlistGroup) {
+        this.movie = movie;
+        this.watchlistGroup = watchlistGroup;
+    }
+
     public Long getId() {
         return id;
     }

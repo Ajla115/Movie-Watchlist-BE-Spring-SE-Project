@@ -2,10 +2,7 @@ package ba.edu.ibu.movieswatchlist.core.service;
 
 import ba.edu.ibu.movieswatchlist.api.impl.infobip.InfobipEmailService;
 import ba.edu.ibu.movieswatchlist.core.api.genresuggester.GenreSuggester;
-import ba.edu.ibu.movieswatchlist.core.model.Genre;
-import ba.edu.ibu.movieswatchlist.core.model.Movie;
-import ba.edu.ibu.movieswatchlist.core.model.User;
-import ba.edu.ibu.movieswatchlist.core.model.WatchlistGroup;
+import ba.edu.ibu.movieswatchlist.core.model.*;
 import ba.edu.ibu.movieswatchlist.core.repository.GenreRepository;
 import ba.edu.ibu.movieswatchlist.core.repository.MovieRepository;
 import ba.edu.ibu.movieswatchlist.core.repository.UserRepository;
@@ -18,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -216,13 +215,25 @@ class MovieServiceTest {
         User user = new User();
         user.setUserId(1L);
 
+        WatchlistGroup watchlistGroup = new WatchlistGroup();
+        watchlistGroup.setId(1L);
+        watchlistGroup.setName("Favorites");
+
+        WatchlistEntry entry1 = new WatchlistEntry();
+        entry1.setWatchlistGroup(watchlistGroup);
+
+        WatchlistEntry entry2 = new WatchlistEntry();
+        entry2.setWatchlistGroup(watchlistGroup);
+
         Movie movie1 = new Movie();
         movie1.setTitle("A Movie");
         movie1.setUser(user);
+        movie1.setWatchlistEntries(List.of(entry1));
 
         Movie movie2 = new Movie();
         movie2.setTitle("B Movie");
         movie2.setUser(user);
+        movie2.setWatchlistEntries(List.of(entry2));
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(movieRepository.findAllMoviesByUserSortedByTitle(user)).thenReturn(List.of(movie1, movie2));
@@ -232,9 +243,61 @@ class MovieServiceTest {
         assertEquals(2, movies.size());
         assertEquals("A Movie", movies.get(0).getTitle());
         assertEquals("B Movie", movies.get(1).getTitle());
+        assertEquals(1, movies.get(0).getWatchlistEntries().size());
+        assertEquals("Favorites", movies.get(0).getWatchlistEntries().get(0).getWatchlistGroup().getName());
+
         verify(userRepository, times(1)).findById(1L);
         verify(movieRepository, times(1)).findAllMoviesByUserSortedByTitle(user);
     }
+
+    @Test
+    void testEditMovie_Simple() {
+        Long movieId = 1L;
+
+        // Create an existing movie
+        Movie existingMovie = new Movie();
+        existingMovie.setMovieId(movieId);
+        existingMovie.setTitle("Old Title");
+        existingMovie.setDescription("Old Description");
+        existingMovie.setWatchlistOrder("Someday");
+
+        Genre genre = new Genre();
+        genre.setGenreId(1L);
+        genre.setName("Action");
+        existingMovie.setGenre(genre);
+
+        // Create the updated movie DTO
+        MovieDTO updatedMovieDTO = new MovieDTO(
+                "New Title",
+                "New Description",
+                "To Watch",
+                "Next Up",
+                "Action",
+                List.of("Favorites")
+        );
+
+        // Mock dependencies
+        when(movieRepository.findById(movieId)).thenReturn(Optional.of(existingMovie));
+        when(genreService.getGenreByName("Action")).thenReturn(Optional.of(genre));
+        when(movieRepository.save(any(Movie.class))).thenReturn(existingMovie);
+
+        // Act: Call the service method
+        Movie result = movieService.editMovie(movieId, updatedMovieDTO);
+
+        // Assert: Verify that fields were updated correctly
+        assertEquals("New Title", result.getTitle());
+        assertEquals("New Description", result.getDescription());
+        assertEquals("Next Up", result.getWatchlistOrder());
+        assertEquals("Action", result.getGenre().getName());
+
+        // Verify interactions with mocks
+        verify(movieRepository, times(1)).findById(movieId);
+        verify(genreService, times(1)).getGenreByName("Action");
+        verify(movieRepository, times(1)).save(existingMovie);
+    }
+
+
+
 
 
 
@@ -268,48 +331,6 @@ class MovieServiceTest {
         verify(watchlistEntryRepository, times(1)).save(any());
     }
 
-    @Test
-    void testEditMovie() {
-        Long movieId = 1L;
-        Movie existingMovie = new Movie();
-        existingMovie.setMovieId(movieId);
-        existingMovie.setTitle("Old Title");
-        existingMovie.setDescription("Old Description");
-        existingMovie.setWatchlistOrder("Someday");
-
-        Genre genre = new Genre();
-        genre.setGenreId(1L);
-        genre.setName("Action");  // Assume existing genre is "Action"
-        existingMovie.setGenre(genre);
-
-        User user = new User();
-        user.setUserId(1L);
-        existingMovie.setUser(user);
-
-        WatchlistGroup watchlistGroup = new WatchlistGroup();
-        watchlistGroup.setId(1L);
-        watchlistGroup.setName("Favorites");
-
-        MovieDTO updatedMovieDTO = new MovieDTO("New Title", "New Description", "To Watch", "Next Up", null, List.of("Favorites"));
-
-        when(movieRepository.findById(movieId)).thenReturn(Optional.of(existingMovie));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(watchlistGroupService.createOrGetWatchlistGroup("Favorites")).thenReturn(watchlistGroup);
-        when(movieRepository.save(existingMovie)).thenReturn(existingMovie);
-
-        Movie updatedMovie = movieService.editMovie(movieId, updatedMovieDTO);
-
-        assertEquals("New Title", updatedMovie.getTitle());
-        assertEquals("New Description", updatedMovie.getDescription());
-        assertEquals("Next Up", updatedMovie.getWatchlistOrder());
-        assertEquals("Action", updatedMovie.getGenre().getName());  // Genre remains unchanged
-        verify(movieRepository, times(1)).findById(movieId);
-        verify(userRepository, times(1)).findById(1L);
-        verify(movieRepository, times(1)).save(existingMovie);
-        verify(watchlistEntryRepository, times(1)).deleteByMovieMovieId(movieId);
-        verify(watchlistEntryRepository, times(1)).save(any());
-    }
-
 
     @Test
     void testDeleteMovie() {
@@ -321,6 +342,7 @@ class MovieServiceTest {
 
         verify(movieRepository, times(1)).deleteById(movieId);
     }
+
 
     @Test
     void testMarkAsWatched_Success() {

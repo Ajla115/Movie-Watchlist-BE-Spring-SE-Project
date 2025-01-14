@@ -1,6 +1,5 @@
 package ba.edu.ibu.movieswatchlist.rest.controllers;
 
-
 import ba.edu.ibu.movieswatchlist.core.model.Movie;
 import ba.edu.ibu.movieswatchlist.core.model.WatchlistGroup;
 import ba.edu.ibu.movieswatchlist.core.service.MovieService;
@@ -52,13 +51,6 @@ public class WatchlistGroupController {
     public ResponseEntity<List<WatchlistGroup>> getAllWatchlistGroups() {
         return ResponseEntity.ok(watchlistGroupService.getAllWatchlistGroupsIdsAndNames());
     }
-
-//    @GetMapping("/movies-by-group/{userId}/{groupId}")
-//    public ResponseEntity<List<Movie>> getMoviesByWatchlistGroup(
-//            @PathVariable Long userId,
-//            @PathVariable Long groupId) {
-//        return ResponseEntity.ok(movieService.getMoviesByWatchlistGroupAndUser(groupId, userId));
-//    }
 
     @GetMapping("/movies-by-group/{userId}/{groupId}")
     public ResponseEntity<List<Movie>> getMoviesByWatchlistGroup(

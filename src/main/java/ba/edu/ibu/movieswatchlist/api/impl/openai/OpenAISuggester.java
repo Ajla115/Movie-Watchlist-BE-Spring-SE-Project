@@ -17,7 +17,7 @@ public class OpenAISuggester implements GenreSuggester {
         String prompt = "Suggest a movie genre for the title: " + title;
         CompletionRequest completionRequest = CompletionRequest.builder()
                 .prompt(prompt)
-                .model("gpt-3.5-turbo-instruct") // Use a suitable model
+                .model("gpt-3.5-turbo-instruct")
                 .maxTokens(10)
                 .build();
 

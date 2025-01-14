@@ -2,8 +2,6 @@ package ba.edu.ibu.movieswatchlist.core.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "movies")
@@ -34,10 +32,6 @@ public class Movie {
 
     @Transient
     private List<String> watchlistGroupNames;
-
-
-
-
 
     public Movie() {
     }
