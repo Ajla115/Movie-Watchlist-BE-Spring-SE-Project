@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -298,6 +299,57 @@ public class MovieService {
 
         return movies;
     }
+
+    public List<Movie> filterMovies(Long userId, String genre, String status, String watchlistOrder, String sort, Long categoryId) {
+        List<Movie> movies;
+
+        // Handle sorting first if provided
+        if ("asc".equalsIgnoreCase(sort)) {
+            movies = movieRepository.findAllByUserIdOrderByWatchlistOrderAsc(userId);
+        } else if ("desc".equalsIgnoreCase(sort)) {
+            movies = movieRepository.findAllByUserIdOrderByWatchlistOrderDesc(userId);
+        } else {
+            movies = movieRepository.findByUserUserId(userId);
+        }
+
+        // Populate watchlistGroupNames for each movie
+        for (Movie movie : movies) {
+            List<String> groupNames = movie.getWatchlistEntries().stream()
+                    .map(entry -> entry.getWatchlistGroup().getName()) // Assuming WatchlistEntry has a reference to WatchlistGroup
+                    .collect(Collectors.toList());
+            movie.setWatchlistGroupNames(groupNames);
+        }
+
+        // Apply other filters (genre, status, watchlistOrder, category) if needed
+        if (genre != null && !genre.isEmpty()) {
+            movies = movies.stream()
+                    .filter(movie -> movie.getGenre().getName().equalsIgnoreCase(genre))
+                    .collect(Collectors.toList());
+        }
+
+        if (status != null && !status.isEmpty()) {
+            movies = movies.stream()
+                    .filter(movie -> movie.getStatus().equalsIgnoreCase(status))
+                    .collect(Collectors.toList());
+        }
+
+        if (watchlistOrder != null && !watchlistOrder.isEmpty()) {
+            movies = movies.stream()
+                    .filter(movie -> movie.getWatchlistOrder().equalsIgnoreCase(watchlistOrder))
+                    .collect(Collectors.toList());
+        }
+
+        if (categoryId != null) {
+            movies = movies.stream()
+                    .filter(movie -> movie.getWatchlistEntries().stream()
+                            .anyMatch(entry -> entry.getWatchlistGroup().getId().equals(categoryId)))
+                    .collect(Collectors.toList());
+        }
+
+        return movies;
+    }
+
+
 
 
 

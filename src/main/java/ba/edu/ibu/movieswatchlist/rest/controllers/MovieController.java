@@ -90,6 +90,21 @@ public class MovieController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/filter/user/{userId}")
+    public ResponseEntity<List<Movie>> filterMovies(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String watchlistOrder,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Long categoryId) {
+
+
+        List<Movie> filteredMovies = movieService.filterMovies(userId, genre, status, watchlistOrder, sort, categoryId);
+        return ResponseEntity.ok(filteredMovies);
+    }
+
+
 
 
 
