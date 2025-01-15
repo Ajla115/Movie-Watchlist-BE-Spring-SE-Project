@@ -21,7 +21,7 @@ public class GenreController {
         return ResponseEntity.ok(genreService.addGenre(genre));
     }
 
-    @GetMapping("/listallgenres")
+    @GetMapping("/list-all-genres")
     public ResponseEntity<List<Genre>> getAllGenres() {
         return ResponseEntity.ok(genreService.getAllGenres());
     }

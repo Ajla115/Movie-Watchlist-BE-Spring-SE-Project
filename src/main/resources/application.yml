@@ -18,7 +18,6 @@ spring:
 openai:
   secret: "${OPENAI_API_KEY}"
 
-
 infobip:
   api:
     key: "${INFOBIP_API_KEY}"

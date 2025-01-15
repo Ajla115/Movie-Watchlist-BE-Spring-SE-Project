@@ -57,7 +57,7 @@ class GenreControllerTest {
 
         when(genreService.getAllGenres()).thenReturn(List.of(genre1, genre2));
 
-        mockMvc.perform(get("/api/genres/listallgenres"))
+        mockMvc.perform(get("/api/genres/list-all-genres"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Action"))
                 .andExpect(jsonPath("$[1].name").value("Comedy"));

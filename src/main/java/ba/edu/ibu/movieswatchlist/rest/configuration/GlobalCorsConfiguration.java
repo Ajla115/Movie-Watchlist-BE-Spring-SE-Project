@@ -13,8 +13,8 @@ public class GlobalCorsConfiguration {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-       // config.addAllowedOrigin("https://movie-watchlist-fe-live.onrender.com/");
-        config.addAllowedOrigin("http://localhost:3000/");
+        config.addAllowedOrigin("https://movie-watchlist-fe-live.onrender.com/");
+        //config.addAllowedOrigin("http://localhost:3000/");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
