@@ -22,6 +22,7 @@ public class Movie {
     @JoinColumn(name = "genre_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movie_genre"))
     private Genre genre;
 
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movie_user"))
     private User user;
